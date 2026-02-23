@@ -1,0 +1,22 @@
+# venv
+.venv/
+
+# python
+__pycache__/
+*.pyc
+
+# jupyter
+.ipynb_checkpoints/
+
+# local artifacts
+.DS_Store
+
+# big data - do not commit
+project_lab1/data/raw.*
+project_lab1/data/processed.csv
+project_lab2/data/processed_v2/
+project_lab2/data/processed_v2/*.csv
+
+# keep small sample only (allowed)
+!project_lab2/data/sample/
+!project_lab2/data/sample/*.csv

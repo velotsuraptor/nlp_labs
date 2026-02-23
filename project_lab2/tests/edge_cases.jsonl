@@ -1,0 +1,20 @@
+{"id":"ec01","raw_text":"м. Львів — гарне місто. Але є черги.","expected_behavior":"не розбивати речення після 'м.'; тире нормалізується до '-'."}
+{"id":"ec02","raw_text":"вул. Шевченка, 10. Працює до 18:00.","expected_behavior":"не розбивати після 'вул.'; лишити час; sentence split має дати 2 речення."}
+{"id":"ec03","raw_text":"Ціна 3.14 грн. Це тест.","expected_behavior":"не розбивати всередині 3.14; 'грн.' не має ламати зміст."}
+{"id":"ec04","raw_text":"Версія 1.2.3 не працює! Допоможіть.","expected_behavior":"не розбивати 1.2.3; split по '!'; output 2 речення."}
+{"id":"ec05","raw_text":"Напишіть на test@example.com будь ласка.","expected_behavior":"email -> <EMAIL>."}
+{"id":"ec06","raw_text":"Мій номер +38 (099) 123-45-67","expected_behavior":"phone -> <PHONE>."}
+{"id":"ec07","raw_text":"Деталі на https://site.com/page?id=1","expected_behavior":"url -> <URL>."}
+{"id":"ec08","raw_text":"Львiв дуже красивий.","expected_behavior":"латинська i в кириличному слові -> 'Львів'."}
+{"id":"ec09","raw_text":"«Супер сервіс!» — дякую.","expected_behavior":"лапки -> \"\"\"; тире -> -; split коректний."}
+{"id":"ec10","raw_text":"Жахливо... Нікому не раджу!!!","expected_behavior":"зберегти емоційність; split на 2 речення."}
+{"id":"ec11","raw_text":"   Багато   пробілів  і \n переносів  ","expected_behavior":"whitespace стискається до одного пробілу."}
+{"id":"ec12","raw_text":"\u00A0NBSP\u00A0між\u00A0словами\u00A0","expected_behavior":"NBSP -> звичайний пробіл."}
+{"id":"ec13","raw_text":"т.д. так пишуть часто. Але це скорочення.","expected_behavior":"не розбивати після 'т.д.'; split після наступної крапки."}
+{"id":"ec14","raw_text":"Це не працює (див. інструкцію). Спробуйте ще раз.","expected_behavior":"не розбивати після 'див.'; split має бути 2 речення."}
+{"id":"ec15","raw_text":"Сума 1000грн. Поверніть!","expected_behavior":"не видаляти числа; split по крапці/знаку оклику."}
+{"id":"ec16","raw_text":"OK...","expected_behavior":"не робити порожнім; clean/normalize стабільні."}
+{"id":"ec17","raw_text":"!!!","expected_behavior":"не перетворити на порожній без причини (але може лишитися як '!!!')."}
+{"id":"ec18","raw_text":"www.example.com дуже повільний","expected_behavior":"www.* -> <URL>."}
+{"id":"ec19","raw_text":"Пишіть: a.b+test@mail.co.uk","expected_behavior":"email -> <EMAIL>."}
+{"id":"ec20","raw_text":"Зверніться за тел. 0501234567.","expected_behavior":"phone -> <PHONE>; не ламати split на 'тел.'."}
