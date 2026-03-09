@@ -1,0 +1,25 @@
+{"id": "ie01", "raw_text": "Повідомлення 123 від 18.04.2024", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=123"}
+{"id": "ie02", "raw_text": "Повідомлення 123 від 18.04.2024", "field_type": "DATE", "expected_behavior": "витягнути DATE=2024-04-18"}
+{"id": "ie03", "raw_text": "Заява №45 подана 5 травня 2023", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=45"}
+{"id": "ie04", "raw_text": "Заява №45 подана 5 травня 2023", "field_type": "DATE", "expected_behavior": "витягнути DATE=2023-05-05"}
+{"id": "ie05", "raw_text": "Версія 1.2.3 не працює", "field_type": "DATE", "expected_behavior": "не вважати 1.2.3 датою"}
+{"id": "ie06", "raw_text": "Число 3.14 не є датою", "field_type": "DATE", "expected_behavior": "не вважати 3.14 датою"}
+{"id": "ie07", "raw_text": "Місто Львів дуже гарне", "field_type": "LOCATION", "expected_behavior": "витягнути LOCATION=Львів"}
+{"id": "ie08", "raw_text": "м. Харків працює стабільно", "field_type": "LOCATION", "expected_behavior": "витягнути LOCATION=Харків"}
+{"id": "ie09", "raw_text": "Львівська область", "field_type": "LOCATION", "expected_behavior": "не витягувати прикметник як місто"}
+{"id": "ie10", "raw_text": "Документ №77 зареєстровано", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=77"}
+{"id": "ie11", "raw_text": "Звернення №456 не розглянули", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=456"}
+{"id": "ie12", "raw_text": "У 2024 році стало краще", "field_type": "DOC_ID", "expected_behavior": "не вважати 2024 DOC_ID без контексту"}
+{"id": "ie13", "raw_text": "18 квітня без року", "field_type": "DATE", "expected_behavior": "raw_date ok, parsed_date=None"}
+{"id": "ie14", "raw_text": "Чернівці дуже красиві", "field_type": "LOCATION", "expected_behavior": "витягнути LOCATION=Чернівці"}
+{"id": "ie15", "raw_text": "Суми зросли на 10%", "field_type": "LOCATION", "expected_behavior": "перевірити можливий конфлікт з містом Суми"}
+{"id": "ie16", "raw_text": "Рішення №88 від 12/01/2022", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=88"}
+{"id": "ie17", "raw_text": "Рішення №88 від 12/01/2022", "field_type": "DATE", "expected_behavior": "витягнути DATE=2022-01-12"}
+{"id": "ie18", "raw_text": "Київ, 18.04.2024", "field_type": "LOCATION", "expected_behavior": "витягнути LOCATION=Київ"}
+{"id": "ie19", "raw_text": "Київ, 18.04.2024", "field_type": "DATE", "expected_behavior": "витягнути DATE=2024-04-18"}
+{"id": "ie20", "raw_text": "100% задоволення", "field_type": "DOC_ID", "expected_behavior": "не вважати 100 DOC_ID"}
+{"id": "ie21", "raw_text": "Лист 54 ще не надіслано", "field_type": "DOC_ID", "expected_behavior": "витягнути DOC_ID=54"}
+{"id": "ie22", "raw_text": "Одеса - чудове місто", "field_type": "LOCATION", "expected_behavior": "витягнути LOCATION=Одеса"}
+{"id": "ie23", "raw_text": "31.13.2024 є невалідною датою", "field_type": "DATE", "expected_behavior": "не витягувати невалідну дату"}
+{"id": "ie24", "raw_text": "Документ № 2024 оновлено", "field_type": "DOC_ID", "expected_behavior": "precision-first: можна пропустити рікоподібний ID"}
+{"id": "ie25", "raw_text": "5 липня 2021 у Львові подали заяву №9", "field_type": "DOC_ID", "expected_behavior": "витягнути DATE, LOCATION, DOC_ID"}
