@@ -1,0 +1,18 @@
+{
+  "seed": 42,
+  "strategy": "stratified_random",
+  "generated_at_utc": "2026-03-16T13:34:34.413981+00:00",
+  "sizes": {
+    "train": 800,
+    "val": 100,
+    "test": 100,
+    "total": 1000
+  },
+  "columns": {
+    "id_col": "text_id",
+    "label_col": "label",
+    "group_col": "source",
+    "time_col": null
+  },
+  "deterministic_ok": true
+}

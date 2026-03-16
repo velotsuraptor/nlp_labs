@@ -34,8 +34,8 @@ PROT_DECIMAL = "<DECIMAL_DOT>"
 
 # A short, practical list of UA abbreviations that end with dot.
 UA_ABBR = [
-    "м", "вул", "пр", "пров", "р", "ст", "с", "ім", "п", "т", "див", "напр",
-    "тобто", "тд", "т.д", "і т.д", "і т.п", "тис", "млн", "грн", "тел"
+    "м", "вул", "пл", "пр", "пров", "р", "ст", "с", "ім", "п", "т", "див", "напр",
+    "тобто", "тд", "т.д", "і т.д", "і т.п", "тис", "млн", "тел"
 ]
 
 
@@ -179,3 +179,5 @@ def no_empty_explosion(text: str) -> bool:
     if raw.strip() == "":
         return out.strip() == ""
     return out.strip() != ""
+
+

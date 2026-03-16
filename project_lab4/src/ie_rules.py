@@ -8,17 +8,20 @@ from typing import Dict, List, Optional
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "resources"
 
+
 def load_list(path: Path) -> List[str]:
     with path.open("r", encoding="utf-8") as f:
         return [x.strip() for x in f if x.strip()]
+
 
 def load_json(path: Path) -> Dict:
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
+
 MONTHS = load_list(RES / "months_ua.txt")
 CITIES = load_list(RES / "cities_ua.txt")
-ID_CTX = load_json(RES / "id_context_keywords.json")["doc_keywords"]
+ID_CTX = load_json(RES / "id_context_keywords.json").get("doc_keywords", [])
 
 MONTH_MAP = {
     "січня": "01",
@@ -37,14 +40,72 @@ MONTH_MAP = {
 
 RE_DATE_NUM = re.compile(r"\b(\d{1,2})[./-](\d{1,2})[./-](\d{4})\b")
 RE_DATE_TEXT = re.compile(
-    r"\b(\d{1,2})\s+(" + "|".join(MONTHS) + r")\s*(\d{4})?\b",
+    r"\b(\d{1,2})\s+(" + "|".join(re.escape(m) for m in MONTHS) + r")\s*(\d{4})?\b",
     re.IGNORECASE,
 )
 
+DOC_CTX_PATTERN = "|".join(re.escape(k) for k in ID_CTX) if ID_CTX else "повідомлення|заява|документ|звернення|рішення|договір|запит|лист"
 RE_DOC_ID = re.compile(
-    r"\b(?:повідомлення|заява|документ|звернення|рішення|договір|запит|лист)\s*№?\s*(\d{1,10})\b|№\s*(\d{1,10})\b",
+    rf"\b(?:{DOC_CTX_PATTERN})\s*№?\s*(\d{{1,10}})\b|№\s*(\d{{1,10}})\b",
     re.IGNORECASE,
 )
+
+CITY_FORMS_OVERRIDES = {
+    "Київ": ["Київ", "Києві", "Києва"],
+    "Львів": ["Львів", "Львові", "Львова", "Львову"],
+    "Харків": ["Харків", "Харкові", "Харкова"],
+    "Одеса": ["Одеса", "Одесі", "Одесу", "Одеси"],
+    "Дніпро": ["Дніпро", "Дніпрі", "Дніпра"],
+    "Чернівці": ["Чернівці", "Чернівцях"],
+    "Суми": ["Суми", "Сумах"],
+    "Полтава": ["Полтава", "Полтаві", "Полтаву"],
+    "Тернопіль": ["Тернопіль", "Тернополі", "Тернополя"],
+    "Івано-Франківськ": ["Івано-Франківськ", "Івано-Франківську", "Івано-Франківська"],
+    "Ужгород": ["Ужгород", "Ужгороді", "Ужгорода"],
+    "Запоріжжя": ["Запоріжжя", "Запоріжжі"],
+    "Миколаїв": ["Миколаїв", "Миколаєві", "Миколаєва"],
+    "Херсон": ["Херсон", "Херсоні", "Херсона"],
+    "Черкаси": ["Черкаси", "Черкасах"],
+    "Житомир": ["Житомир", "Житомирі", "Житомира"],
+    "Рівне": ["Рівне", "Рівному"],
+    "Луцьк": ["Луцьк", "Луцьку", "Луцька"],
+    "Хмельницький": ["Хмельницький", "Хмельницькому", "Хмельницького"],
+    "Вінниця": ["Вінниця", "Вінниці", "Вінницю"],
+    "Чернігів": ["Чернігів", "Чернігові", "Чернігова"],
+    "Кропивницький": ["Кропивницький", "Кропивницькому", "Кропивницького"],
+}
+
+
+def _default_city_forms(city: str) -> List[str]:
+    forms = {city}
+    if city.endswith("а"):
+        root = city[:-1]
+        forms.update({root + "і", root + "у", root + "ою"})
+    elif city.endswith("о"):
+        root = city[:-1]
+        forms.update({root + "і", root + "а"})
+    elif city.endswith("е"):
+        root = city[:-1]
+        forms.update({root + "ому", root + "і"})
+    elif city.endswith("и"):
+        root = city[:-1]
+        forms.update({root + "ах"})
+    else:
+        forms.update({city + "і", city + "а", city + "у"})
+    return sorted(forms)
+
+
+def _build_city_forms() -> Dict[str, List[str]]:
+    out: Dict[str, List[str]] = {}
+    for city in CITIES:
+        forms = set(_default_city_forms(city))
+        forms.update(CITY_FORMS_OVERRIDES.get(city, []))
+        out[city] = sorted(forms)
+    return out
+
+
+CITY_FORMS = _build_city_forms()
+
 
 def _item(field_type: str, value: str, start: int, end: int, method: str, raw_value: Optional[str] = None, **extra) -> Dict:
     out = {
@@ -59,6 +120,7 @@ def _item(field_type: str, value: str, start: int, end: int, method: str, raw_va
     out.update(extra)
     return out
 
+
 def normalize_date_numeric(day: str, month: str, year: str) -> Optional[str]:
     try:
         d = int(day)
@@ -69,6 +131,7 @@ def normalize_date_numeric(day: str, month: str, year: str) -> Optional[str]:
         return f"{y:04d}-{m:02d}-{d:02d}"
     except Exception:
         return None
+
 
 def normalize_date_text(day: str, month_ua: str, year: Optional[str]) -> Optional[str]:
     if not year:
@@ -83,6 +146,7 @@ def normalize_date_text(day: str, month_ua: str, year: Optional[str]) -> Optiona
     except Exception:
         return None
 
+
 def extract_dates(text: str) -> List[Dict]:
     text = "" if text is None else str(text)
     out: List[Dict] = []
@@ -92,46 +156,32 @@ def extract_dates(text: str) -> List[Dict]:
         value = normalize_date_numeric(day, month, year)
         if value is None:
             continue
-        out.append(_item("DATE", value, m.start(), m.end(), "regex_date_numeric_v2", raw_value=m.group(0)))
+        out.append(_item("DATE", value, m.start(), m.end(), "regex_date_numeric_v3", raw_value=m.group(0)))
 
     for m in RE_DATE_TEXT.finditer(text):
         day, month_ua, year = m.groups()
         parsed = normalize_date_text(day, month_ua, year)
-        out.append(_item("DATE", parsed if parsed else m.group(0), m.start(), m.end(), "regex_date_text_v2", raw_value=m.group(0), parsed_date=parsed))
+        out.append(
+            _item(
+                "DATE",
+                parsed if parsed else m.group(0),
+                m.start(),
+                m.end(),
+                "regex_date_text_v3",
+                raw_value=m.group(0),
+                parsed_date=parsed,
+            )
+        )
 
     return out
+
 
 def extract_locations(text: str) -> List[Dict]:
     text = "" if text is None else str(text)
     out: List[Dict] = []
 
-    city_forms = {
-        "Київ": ["Київ", "Києві", "Києва"],
-        "Львів": ["Львів", "Львові", "Львова", "Львову"],
-        "Харків": ["Харків", "Харкові", "Харкова"],
-        "Одеса": ["Одеса", "Одесі", "Одесу", "Одеси"],
-        "Дніпро": ["Дніпро", "Дніпрі", "Дніпра"],
-        "Чернівці": ["Чернівці", "Чернівцях"],
-        "Суми": ["Суми", "Сумах"],
-        "Полтава": ["Полтава", "Полтаві", "Полтаву"],
-        "Тернопіль": ["Тернопіль", "Тернополі", "Тернополя"],
-        "Івано-Франківськ": ["Івано-Франківськ", "Івано-Франківську", "Івано-Франківська"],
-        "Ужгород": ["Ужгород", "Ужгороді", "Ужгорода"],
-        "Запоріжжя": ["Запоріжжя", "Запоріжжі"],
-        "Миколаїв": ["Миколаїв", "Миколаєві", "Миколаєва"],
-        "Херсон": ["Херсон", "Херсоні", "Херсона"],
-        "Черкаси": ["Черкаси", "Черкасах"],
-        "Житомир": ["Житомир", "Житомирі", "Житомира"],
-        "Рівне": ["Рівне", "Рівному"],
-        "Луцьк": ["Луцьк", "Луцьку", "Луцька"],
-        "Хмельницький": ["Хмельницький", "Хмельницькому", "Хмельницького"],
-        "Вінниця": ["Вінниця", "Вінниці", "Вінницю"],
-        "Чернігів": ["Чернігів", "Чернігові", "Чернігова"],
-        "Кропивницький": ["Кропивницький", "Кропивницькому", "Кропивницького"],
-    }
-
     seen = set()
-    for city, forms in city_forms.items():
+    for city, forms in CITY_FORMS.items():
         for form in forms:
             pattern = re.compile(rf"\b{re.escape(form)}\b")
             for m in pattern.finditer(text):
@@ -139,9 +189,10 @@ def extract_locations(text: str) -> List[Dict]:
                 if key in seen:
                     continue
                 seen.add(key)
-                out.append(_item("LOCATION", city, m.start(), m.end(), "dict_city_ua_forms_v2", raw_value=m.group(0)))
+                out.append(_item("LOCATION", city, m.start(), m.end(), "dict_city_ua_forms_v3", raw_value=m.group(0)))
 
     return out
+
 
 def extract_doc_ids(text: str) -> List[Dict]:
     text = "" if text is None else str(text)
@@ -152,13 +203,15 @@ def extract_doc_ids(text: str) -> List[Dict]:
         if not value:
             continue
 
-        raw = m.group(0)
-        if len(value) == 4 and value.startswith("20") and raw.strip().lower().replace(" ", "") == f"№{value}".lower():
+        # Precision-first: year-like IDs tend to be false positives in this corpus.
+        if len(value) == 4 and value.startswith("20"):
             continue
 
-        out.append(_item("DOC_ID", value, m.start(), m.end(), "regex_doc_id_v2", raw_value=raw, id_type="DOC_ID"))
+        raw = m.group(0)
+        out.append(_item("DOC_ID", value, m.start(), m.end(), "regex_doc_id_v3", raw_value=raw, id_type="DOC_ID"))
 
     return out
+
 
 def extract_all(text: str) -> Dict[str, List[Dict]]:
     return {

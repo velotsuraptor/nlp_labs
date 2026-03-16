@@ -20,8 +20,8 @@ PROT_DOT = "<DOT>"
 PROT_DECIMAL = "<DECIMAL_DOT>"
 
 UA_ABBR = [
-    "м", "вул", "пр", "пров", "р", "ст", "с", "ім", "п", "т", "див", "напр",
-    "тобто", "тд", "т.д", "і т.д", "і т.п", "тис", "млн", "грн", "тел"
+    "м", "вул", "пл", "пр", "пров", "р", "ст", "с", "ім", "п", "т", "див", "напр",
+    "тобто", "тд", "т.д", "і т.д", "і т.п", "тис", "млн", "тел"
 ]
 
 
@@ -140,3 +140,5 @@ def preprocess(text: str) -> PreprocessResult:
         "len_chars_after": len(masked),
     }
     return PreprocessResult(clean=clean, normalized=norm, masked=masked, sentences=sents, stats=stats)
+
+

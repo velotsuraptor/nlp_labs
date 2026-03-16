@@ -1,14 +1,13 @@
 # Audit summary — Lab4
 
-## Precision table
+## Precision table (edge-case based)
 
-- DATE: predicted=13, correct=13, precision=1.0000
-- LOCATION: predicted=0, correct=0, precision=N/A
-- DOC_ID: predicted=2, correct=2, precision=1.0000
+- DATE: predicted=4, correct=4, precision=1.0000, recall=1.0000, skipped_ambiguous=0
+- LOCATION: predicted=5, correct=5, precision=1.0000, recall=1.0000, skipped_ambiguous=1
+- DOC_ID: predicted=7, correct=7, precision=1.0000, recall=1.0000, skipped_ambiguous=1
 
 ## Notes
 
-Для швидкої відтворюваної оцінки використано автоматично згенерований weak-gold subset.
-LOCATION виправлено через підтримку відмінкових форм міст.
-DATE має високу точність через чіткі regex-патерни; DOC_ID — через контекстні правила.
-Для error analysis використано problem cases з ie_edge_cases.jsonl.
+Оцінка зроблена на ie_edge_cases.jsonl (не на self-generated weak-gold).
+Weak-gold збережено як допоміжний набір прикладів, але не як незалежний тест.
+Precision-first anti-rules зменшують хибні DOC_ID/DATE спрацювання.
