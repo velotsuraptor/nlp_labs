@@ -1,0 +1,154 @@
+[
+  {
+    "case_id":"case_001_simple_compensation",
+    "input":"Через Дію подав заяву на єВідновлення. Коли надійдуть кошти?",
+    "expected_behavior":"Agent should identify a compensation-related service request and keep the output structured.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields"
+    ],
+    "final_answer":"Route: generic_route. issue_type=application_submission; primary_service=єВідновлення; services=['єВідновлення']; amounts=[]; date=None; location=None.",
+    "error_category":"partly correct tool-grounded answer",
+    "possible_fix":"Use better post-processing so the agent consumes tool output more faithfully."
+  },
+  {
+    "case_id":"case_002_document_cnap",
+    "input":"Для єВідновлення у ЦНАПі потрібні документи на квартиру?",
+    "expected_behavior":"Agent should use extraction + validation to keep document and location fields aligned.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: document_route. issue_type=document_requirement; primary_service=єВідновлення; services=['єВідновлення', 'ЦНАП']; amounts=[]; date=None; location=ЦНАП.",
+    "error_category":"showcase",
+    "possible_fix":"No fix needed."
+  },
+  {
+    "case_id":"case_003_ambiguous_service",
+    "input":"Якщо подала через ЦНАП, чи треба ще дублювати заяву в Дії?",
+    "expected_behavior":"Agent should surface service ambiguity instead of over-claiming a primary service.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields"
+    ],
+    "final_answer":"Route: generic_route. issue_type=application_submission; primary_service=ЦНАП; services=['ЦНАП']; amounts=[]; date=None; location=ЦНАП.",
+    "error_category":"partly correct tool-grounded answer",
+    "possible_fix":"Use better post-processing so the agent consumes tool output more faithfully."
+  },
+  {
+    "case_id":"case_004_relative_date",
+    "input":"Переказати 500 грн на ремонт завтра з картки єВідновлення.",
+    "expected_behavior":"Agent should use tool output for amount and date and keep a note that the date is relative.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: payment_route. issue_type=payment_or_amount; primary_service=єВідновлення; services=['єВідновлення']; amounts=[500]; date=завтра; location=None. Notes: relative date needs human interpretation.",
+    "error_category":"showcase",
+    "possible_fix":"No fix needed."
+  },
+  {
+    "case_id":"case_005_empty_service_result",
+    "input":"Компенсація за пошкоджене майно ще не надходила.",
+    "expected_behavior":"The extraction tool should return an empty service list instead of hallucinating one.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: payment_route. issue_type=payment_or_amount; primary_service=unknown; services=[]; amounts=[]; date=None; location=None.",
+    "error_category":"showcase",
+    "possible_fix":"No fix needed."
+  },
+  {
+    "case_id":"case_006_noisy_typos",
+    "input":"чeрeз дiю нe можу пoдати зaяву на євiднoвлення",
+    "expected_behavior":"Tools should still recover the route and fields from noisy text.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: access_route. issue_type=service_access_problem; primary_service=єВідновлення; services=['єВідновлення']; amounts=[]; date=None; location=None.",
+    "error_category":"partly correct tool-grounded answer",
+    "possible_fix":"Use better post-processing so the agent consumes tool output more faithfully."
+  },
+  {
+    "case_id":"case_007_passport_queue",
+    "input":"На паспорт стояв у черзі дві години і ще заплатив 400 грн.",
+    "expected_behavior":"Agent should succeed, but this is also the case where validator is arguably extra.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: payment_route. issue_type=payment_or_amount; primary_service=Паспортний сервіс; services=['Паспортний сервіс']; amounts=[400]; date=None; location=None.",
+    "error_category":"unnecessary tool call",
+    "possible_fix":"Tighten the validation heuristic so low-risk queue cases skip the validator."
+  },
+  {
+    "case_id":"case_008_notary_date",
+    "input":"У нотаріуса подали заяву 25.02.22 після смерті батька.",
+    "expected_behavior":"Simple notary case where extraction should stay clean and no extra validation is needed.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields"
+    ],
+    "final_answer":"Route: inheritance_route. issue_type=inheritance_or_notary; primary_service=Нотаріус; services=['Нотаріус']; amounts=[]; date=25.02.22; location=None.",
+    "error_category":"tool not called, although maybe optional",
+    "possible_fix":"Document why the agent safely skipped validation on simple cases."
+  },
+  {
+    "case_id":"case_009_missing_data",
+    "input":"Подати повідомлення про пошкоджене майно можна у Дії або в ЦНАПі?",
+    "expected_behavior":"Validator should catch the ambiguous service choice and keep the output cautious.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: document_route. issue_type=document_requirement; primary_service=ЦНАП; services=['ЦНАП']; amounts=[]; date=None; location=ЦНАП.",
+    "error_category":"partly correct tool-grounded answer",
+    "possible_fix":"Use better post-processing so the agent consumes tool output more faithfully."
+  },
+  {
+    "case_id":"case_010_manual_review_candidate",
+    "input":"Я вже не пам'ятаю: подавав чи повідомлення, чи заяву, чи через Дію, чи через ЦНАП.",
+    "expected_behavior":"Agent should avoid a confident final extraction and mark the case for manual check.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: document_route. issue_type=document_requirement; primary_service=ЦНАП; services=['ЦНАП']; amounts=[]; date=None; location=ЦНАП.",
+    "error_category":"partly correct tool-grounded answer",
+    "possible_fix":"Use better post-processing so the agent consumes tool output more faithfully."
+  },
+  {
+    "case_id":"case_011_missing_service_but_amount",
+    "input":"Поверніть 200000 грн компенсації, бо будинок зруйнований повністю.",
+    "expected_behavior":"Agent should extract the amount without inventing a service name.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields",
+      "validate_required_fields"
+    ],
+    "final_answer":"Route: payment_route. issue_type=payment_or_amount; primary_service=unknown; services=[]; amounts=[200000]; date=None; location=None.",
+    "error_category":"showcase",
+    "possible_fix":"No fix needed."
+  },
+  {
+    "case_id":"case_012_location_specific",
+    "input":"У ЦНАПі на пл. Ринок у Львові не можуть знайти мою заяву.",
+    "expected_behavior":"Agent should use extraction output directly in the final routed answer.",
+    "actual_tool_calls":[
+      "classify_issue_type",
+      "extract_support_fields"
+    ],
+    "final_answer":"Route: access_route. issue_type=service_access_problem; primary_service=ЦНАП; services=['ЦНАП']; amounts=[]; date=None; location=пл. Ринок, Львів.",
+    "error_category":"tool not called, although maybe optional",
+    "possible_fix":"Document why the agent safely skipped validation on simple cases."
+  }
+]
