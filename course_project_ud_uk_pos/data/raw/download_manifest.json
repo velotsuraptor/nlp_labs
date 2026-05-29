@@ -1,0 +1,14 @@
+{
+  "source": "UD Ukrainian-IU",
+  "downloaded_at_utc": "2026-04-28T21:21:54.505145+00:00",
+  "files": {
+    "train": "https://raw.githubusercontent.com/UniversalDependencies/UD_Ukrainian-IU/master/uk_iu-ud-train.conllu",
+    "dev": "https://raw.githubusercontent.com/UniversalDependencies/UD_Ukrainian-IU/master/uk_iu-ud-dev.conllu",
+    "test": "https://raw.githubusercontent.com/UniversalDependencies/UD_Ukrainian-IU/master/uk_iu-ud-test.conllu"
+  },
+  "local_paths": {
+    "train": "data\\raw\\uk_iu-ud-train.conllu",
+    "dev": "data\\raw\\uk_iu-ud-dev.conllu",
+    "test": "data\\raw\\uk_iu-ud-test.conllu"
+  }
+}

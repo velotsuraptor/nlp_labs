@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+models/*.pkl
+outputs/*.json
+outputs/*.png
+outputs/*.jsonl
+outputs/*.csv
+data/raw/*.conllu
+data/processed/*.jsonl
+data/processed/*.csv
+
